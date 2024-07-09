@@ -6,19 +6,30 @@ def validate_time(time):
         return True
     return False
 
+# Display the number of guests for each table
+def display_guests(table_guests):
+    guest=[]
+    for table, guests in table_guests.items():
+        guest.append(f" {table} : {guests} Tamu")
+    return guest
+
+
 # Confirm reservation
 def validation(name, time, table_selected):
     if not name:
         #check name is fill or not
-        return False, st.warning("Harap masukkan nama Anda.")
+        st.warning("Harap masukkan nama Anda.")
+        return False
 
     elif validate_time(time):
         #check if time correct or not
-        return st.warning("Waktu yang dipilih tidak valid. Silakan pilih waktu antara jam 10:00 hingga jam 21:00")
+        st.warning("Waktu yang dipilih tidak valid. Silakan pilih waktu antara jam 10:00 hingga jam 21:00")
+        return False
     
     elif not table_selected:
         # check if the table are selected
-        return st.warning("Silahkan Pilih Meja.")
+        st.warning("Silahkan Pilih Meja.")
+        return False
     
     else:
         # Display the reservation details
@@ -45,9 +56,52 @@ time = st.time_input("Pilih Waktu Reservasi")
 tables = ["Meja 1", "Meja 2", "Meja 3", "Meja 4", "Meja 5"]
 table_selected = st.multiselect("Pilih Meja", tables)
 
-# Number input for the number of guests
-guests = st.number_input("Jumlah Tamu", min_value=1, step=1)
+# Create a dictionary to store the table selection and number of guests
+table_guests = {}
+
+for table in table_selected:
+    table_guests[table] = st.number_input(f"Jumlah Tamu untuk {table}", min_value=1, step=1)
+
+
 
 validation_check = validation(name, time, table_selected)
 
-st.button(label = "Konfirmasi")
+check = False
+
+if (validation_check):
+
+    
+    if st.button("Konfirmasi"):
+        check = True
+    
+
+if (check):
+    
+    reservation_details = f"""
+    ### Detail Reservasi Anda:
+    - **Nama:** {name}
+    - **Tanggal:** {date.strftime('%Y-%m-%d')}
+    - **Waktu:** {time.strftime('%H:%M')}
+    - **Meja:** {', '.join(table_selected)}
+    - **Jumlah Tamu:** { display_guests(table_guests) }
+    """
+
+
+    st.success("Reservasi berhasil dikonfirmasi!")
+    st.markdown(reservation_details)
+
+    # Payment confirmation step
+    dp_amount = 25000 * len(table_selected)
+    st.write(f"Total DP yang harus dibayar: Rp. {dp_amount:,}")
+
+    st.write("Silakan bayar DP di kasir restoran.")
+    st.write("Silakan masukkan jumlah DP yang dibayar:")
+    dp_paid = st.number_input("Jumlah DP yang dibayar")
+    if dp_paid >= dp_amount:
+        st.success("DP berhasil dibayar!")
+    else:
+        st.error("Jumlah DP yang dibayar tidak sesuai. Silakan cek kembali.")
+
+
+    st.button("Bayar") 
+
