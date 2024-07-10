@@ -1,6 +1,11 @@
 import streamlit as st
 from datetime import datetime, timedelta
 
+
+check = False
+tables = ["Meja 1", "Meja 2", "Meja 3", "Meja 4", "Meja 5"]
+table_guests = {}
+
 def validate_time(time):
     if time.hour < 10 or time.hour > 21:
         return True
@@ -50,31 +55,21 @@ date = st.date_input("Pilih Tanggal Reservasi", min_value=datetime.today())
 # Time input for the reservation
 time = st.time_input("Pilih Waktu Reservasi")
 
-
-
 # Table selection
-tables = ["Meja 1", "Meja 2", "Meja 3", "Meja 4", "Meja 5"]
-table_selected = st.multiselect("Pilih Meja", tables)
+table_selected = st.multiselect("Pilih Meja",tables ,placeholder="Silahkan Pilih Meja")
+
 
 # Create a dictionary to store the table selection and number of guests
-table_guests = {}
-
 for table in table_selected:
     table_guests[table] = st.number_input(f"Jumlah Tamu untuk {table}", min_value=1, step=1)
 
 
 
-validation_check = validation(name, time, table_selected)
 
-check = False
 
-if (validation_check):
-
+if st.button("Konfirmasi"):
+    check = validation(name, time, table_selected)
     
-    if st.button("Konfirmasi"):
-        check = True
-    
-
 if (check):
     
     reservation_details = f"""
