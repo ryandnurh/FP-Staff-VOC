@@ -1,4 +1,5 @@
 import streamlit as st
+from PIL import Image
 from datetime import datetime, timedelta
 
 def validate_time(time):
@@ -133,6 +134,47 @@ def tables():
     return total_meja
 
 
+def check_cash_payments(dp, amount):
+    change = dp-amount
+    if dp < amount:
+        st.warning(f"Uang anda masih kurang {change:,.0f}")
+    elif dp>amount:
+        st.success(f"Kembalian anda Rp {change:,.0f}. Terimakasih telah memesan, kami tunggu kehadiran anda.")
+    else:
+        st.success("Terimakasih telah memesan, kami tunggu kehadiran anda.")
+
+def handle_payment_method_selection(amount):
+
+        comma_amount = amount.replace(",", "")
+        total_amount = int(comma_amount)
+        payment_methods = ["Cash", "Transfer Bank", "E-Wallet"]
+        payment_method = st.selectbox("Pilih Metode Pembayaran", options=payment_methods)
+
+        if payment_method == "Transfer Bank":
+            st.info(f"Silahkan transfer ke BCA 3410781972487 sebesar Rp {amount}")
+            uploaded_file = st.file_uploader("Upload bukti", type=['png','jpg'])
+            if uploaded_file is not None:
+                st.image(uploaded_file)
+            if st.button("Submit"):
+                if uploaded_file is not None:
+                    img = Image.open(uploaded_file)
+                    img.save(f"uploaded-file/{uploaded_file.name}.png")
+
+                    st.session_state.page = 'result'
+                    st.experimental_rerun()
+
+                else:
+                    st.error("Silahkan Upload File terlebih dahulu")
+        
+        elif payment_method == "E-Wallet":
+            st.error("Mohon Maaf, Pembayaran ini belum bisa digunakan")
+        
+        elif payment_method == "Cash":
+            dp = st.number_input("Input DP", min_value=0.0, step=100.0, format="%.0f")
+            note = st.text_area("Tulis Catatan (opsional)", placeholder="dava asu...")
+            if st.button("Konfirmasi Pembayaran"):
+                check_cash_payments(dp,total_amount)
+
 
 def main():
     name, phone, date, time = home_page()
@@ -163,14 +205,25 @@ def payment():
     """
 
     st.markdown(reservation_details)
-        
-    dp = st.number_input("Input DP", min_value=0.0, value=0.0, step=0.1, format="%.2f")
-    note = st.text_area("Tulis Catatan")
-    if st.button("Konfirmasi Pembayaran"):
-        st.write("Pembayaran dikonfirmasi.")
-        st.write(f"Jumlah DP: {dp}")
-        st.write(f"Catatan: {note}")
-        st.session_state.page = 'main'
+
+    total = f"{st.session_state.total_harga:,}"
+
+    handle_payment_method_selection(total)
+
+   
+def result():
+    st.title("Detail Reservasi")
+
+    reservation_details = f"""
+    - **Nama Pemesan :** {st.session_state.reservation_details['name']}
+    - **Nomor WhatsApp :** {st.session_state.reservation_details['phone']}
+    - **Tanggal Reservasi :** {st.session_state.reservation_details['date']}
+    - **Waktu Reservasi :** {st.session_state.reservation_details['time']}
+    - **Meja yang Dipilih:** {', '.join(st.session_state.tables_selected)}
+    - **Jumlah Pax :** { st.session_state.pax }
+    """
+    st.markdown(reservation_details)
+   
 
 if 'page' not in st.session_state:
     st.session_state.page = 'main'
@@ -183,6 +236,8 @@ def app_main():
         main()
     elif st.session_state.page == 'payment':
         payment()
+    elif st.session_state.page == 'result':
+        result()
 
 
 
