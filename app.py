@@ -158,7 +158,7 @@ def handle_payment_method_selection(amount):
             if st.button("Submit"):
                 if uploaded_file is not None:
                     img = Image.open(uploaded_file)
-                    img.save(f"uploaded-file/{uploaded_file.name}.png")
+                    img.save(f"uploaded-file/{uploaded_file.name}")
 
                     st.success("Berhasil mengupload")
 
