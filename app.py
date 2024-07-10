@@ -160,8 +160,7 @@ def handle_payment_method_selection(amount):
                     img = Image.open(uploaded_file)
                     img.save(f"uploaded-file/{uploaded_file.name}.png")
 
-                    st.session_state.page = 'result'
-                    st.experimental_rerun()
+                    st.success("Berhasil mengupload")
 
                 else:
                     st.error("Silahkan Upload File terlebih dahulu")
