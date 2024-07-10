@@ -116,12 +116,19 @@ def tables():
                 st.session_state[clicked_key] = not st.session_state[clicked_key]
                 st.experimental_rerun()
 
+    tables_selected = []
+    for i in range(jumlah_meja):
+        if st.session_state[f"meja_{i+1}_clicked"]:
+            tables_selected.append(f"Meja {i + 1}")
+
     total_meja = sum(1 for i in range(jumlah_meja) if st.session_state[f"meja_{i+1}_clicked"])
     total_harga = total_meja * 25000
+    st.write(f"Meja yang Dipilih: {', '.join(tables_selected)}")
     st.write(f"Total Meja yang Dipilih: {total_meja}")
     st.write(f"Total Harga: Rp {total_harga:,}")
 
     st.session_state.total_harga = total_harga
+    st.session_state.tables_selected = tables_selected
 
     return total_meja
 
@@ -150,7 +157,7 @@ def payment():
     - **Nomor WhatsApp :** {st.session_state.reservation_details['phone']}
     - **Tanggal Reservasi :** {st.session_state.reservation_details['date']}
     - **Waktu Reservasi :** {st.session_state.reservation_details['time']}
-    - **Meja :** { "" }
+    - **Meja yang Dipilih:** {', '.join(st.session_state.tables_selected)}
     - **Jumlah Pax :** { st.session_state.pax }
     - **Total Minimum DP :** Rp {st.session_state.total_harga:,}
     """
