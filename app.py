@@ -54,7 +54,7 @@ def reservation_id():
 
 
 def home_page():
-    st.title("Reservasi Online Restoran")
+    st.title("Reservasi Online Restoran - v1")
     name, phone, date, time = reservation_id()
     st.session_state.reservation_details = {
         'name': name,
@@ -252,14 +252,33 @@ def result():
     st.title("Detail Reservasi")
     st.session_state.details
 
+    # Format the reservation details
+    detail = f"""
+    Reservasi Details:
+
+    Nama Pemesan: {st.session_state.reservation_details['name']}
+    Nomor WhatsApp: {st.session_state.reservation_details['phone']}
+    Tanggal Reservasi: {st.session_state.reservation_details['date']}
+    Waktu Reservasi: {st.session_state.reservation_details['time']}
+    Meja yang Dipilih: {', '.join(st.session_state.tables_selected)}
+    Total Meja yang Dipilih: {st.session_state.total_meja}
+    Jumlah Pax: {st.session_state.pax}
+    Total Minimum DP: Rp {st.session_state.total_harga:,}
+    """
+
     #cek apabila ada catatan
     if st.session_state.note:
         st.write(f"Note : {st.session_state.note}")
-        details = st.session_state.details + f"\n- **Note :** {st.session_state.note}" #menambahkan catatan ke download detail
+        details = detail + f"\nNote : {st.session_state.note}" #menambahkan catatan ke download detail
         
     else:
         st.write("Note: Tidak ada catatan yang diberikan.")
-        details = st.session_state.details
+        details = detail
+
+    # Create a file to save the reservation details
+    with open("reservations.txt", "a") as f:
+        f.write(detail + "\n\n")
+
 
     col1, col2 = st.columns(2)
 
