@@ -2,7 +2,7 @@ import streamlit as st
 from PIL import Image
 from datetime import datetime
 
-
+#validasi waktu
 def validate_time(time):
     if time.hour < 10 or time.hour > 21:
         return True
