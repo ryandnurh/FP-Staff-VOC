@@ -16,7 +16,5 @@ jobs:
         with:
           name: uploaded-files
           path: |
-            ${{ github.workspace }}/uploaded-file/**
-            ${{ github.workspace }}/uploaded-file/*.png
-            ${{ github.workspace }}/uploaded-file/*.jpg
+            ${{ github.workspace }}/uploaded-file/
           artifact: true
