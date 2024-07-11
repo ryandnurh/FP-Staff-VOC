@@ -54,7 +54,7 @@ def reservation_id():
 
 
 def home_page():
-    st.title("Reservasi Online Restoran")
+    st.title("Reservasi Online Restoran - v1")
     name, phone, date, time = reservation_id()
     st.session_state.reservation_details = {
         'name': name,
