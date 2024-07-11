@@ -2,10 +2,14 @@ import streamlit as st
 from PIL import Image
 from datetime import datetime, timedelta
 
+
+
 def validate_time(time):
     if time.hour < 10 or time.hour > 21:
         return True
     return False
+
+
 
 def validation(name, phone, time, table_selected):
     if not name:
@@ -38,6 +42,8 @@ def validation(name, phone, time, table_selected):
         return True
 
 
+
+
 def reservation_id():
     name = st.text_input("Nama Pemesan", placeholder="Masukkan Nama Anda")
     phone = st.text_input("Nomor Whatsapp", placeholder="Masukkan Nomor WhatsApp Anda")
@@ -45,6 +51,7 @@ def reservation_id():
     time = st.time_input("Pilih Waktu Reservasi")
     
     return name, phone, date, time
+
 
 
 def home_page():
@@ -56,8 +63,6 @@ def home_page():
         'date': date,
         'time' : time
     }
-
-    return name, phone, date, time
 
 
 
@@ -130,37 +135,49 @@ def tables():
 
     st.session_state.total_harga = total_harga
     st.session_state.tables_selected = tables_selected
+    st.session_state.total_meja = total_meja
 
-    return total_meja
+
 
 
 def check_cash_payments(dp, amount):
     change = dp-amount
     if dp < amount:
         st.warning(f"Uang anda masih kurang {change:,.0f}")
+        return False
+    
     elif dp>amount:
-        st.success(f"Kembalian anda Rp {change:,.0f}. Terimakasih telah memesan, kami tunggu kehadiran anda.")
+        st.session_state.greeting = f"Kembalian anda Rp {change:,.0f}. Terimakasih telah memesan, Berikut Detail Pemesanan anda."
+        return True
+    
     else:
-        st.success("Terimakasih telah memesan, kami tunggu kehadiran anda.")
+        st.session_state.greeting = f"Terimakasih telah memesan, Berikut Detail Pemesanan anda."
+        return True
+
+
 
 def handle_payment_method_selection(amount):
 
         comma_amount = amount.replace(",", "")
         total_amount = int(comma_amount)
-        payment_methods = ["Cash", "Transfer Bank", "E-Wallet"]
+        payment_methods = ["Cash", "E-Wallet", "Transfer Bank"]
         payment_method = st.selectbox("Pilih Metode Pembayaran", options=payment_methods)
 
         if payment_method == "Transfer Bank":
             st.info(f"Silahkan transfer ke BCA 3410781972487 sebesar Rp {amount}")
             uploaded_file = st.file_uploader("Upload bukti", type=['png','jpg'])
+
             if uploaded_file is not None:
                 st.image(uploaded_file)
+
             if st.button("Submit"):
                 if uploaded_file is not None:
                     img = Image.open(uploaded_file)
                     img.save(f"uploaded-file/{uploaded_file.name}")
 
-                    st.success("Berhasil mengupload")
+                    st.session_state.greeting = f"Berhasil mengupload ({uploaded_file.name}). Terimakasih telah memesan, Berikut Detail Pemesanan anda."
+                    st.session_state.page = 'result'
+                    st.experimental_rerun()
 
                 else:
                     st.error("Silahkan Upload File terlebih dahulu")
@@ -171,16 +188,37 @@ def handle_payment_method_selection(amount):
         elif payment_method == "Cash":
             dp = st.number_input("Input DP", min_value=0.0, step=100.0, format="%.0f")
             note = st.text_area("Tulis Catatan (opsional)", placeholder="dava asu...")
+
+            st.session_state.note = f"{note}"
+
+
             if st.button("Konfirmasi Pembayaran"):
-                check_cash_payments(dp,total_amount)
+                if (check_cash_payments(dp,total_amount)):
+                    st.session_state.page = 'result'
+                    st.experimental_rerun()
 
 
 def main():
-    name, phone, date, time = home_page()
-    total_meja = tables()
+    home_page()
+    tables()
     pax = st.number_input("Jumlah Pax", min_value=1, value=1, step=1, format="%d")
     st.session_state.pax = pax  # Simpan nilai pax ke dalam session state
 
+    name = st.session_state.reservation_details['name']
+    phone = st.session_state.reservation_details['phone']
+    time = st.session_state.reservation_details['time']
+    total_meja = st.session_state.total_meja
+
+    st.session_state.details = f"""
+    - **Nama Pemesan :** {st.session_state.reservation_details['name']}
+    - **Nomor WhatsApp :** {st.session_state.reservation_details['phone']}
+    - **Tanggal Reservasi :** {st.session_state.reservation_details['date']}
+    - **Waktu Reservasi :** {st.session_state.reservation_details['time']}
+    - **Meja yang Dipilih:** {', '.join(st.session_state.tables_selected)}
+    - **Total Meja yang Dipilih:** { st.session_state.total_meja }
+    - **Jumlah Pax :** { st.session_state.pax }
+    - **Total Minimum DP :** Rp {st.session_state.total_harga:,}
+    """
     
     if st.button("Konfirmasi & Bayar"):
         if (validation(name, phone, time, total_meja)):
@@ -192,36 +230,25 @@ def main():
 
 def payment():
     st.title("Halaman Pembayaran")
-
-    reservation_details = f"""
-    - **Nama Pemesan :** {st.session_state.reservation_details['name']}
-    - **Nomor WhatsApp :** {st.session_state.reservation_details['phone']}
-    - **Tanggal Reservasi :** {st.session_state.reservation_details['date']}
-    - **Waktu Reservasi :** {st.session_state.reservation_details['time']}
-    - **Meja yang Dipilih:** {', '.join(st.session_state.tables_selected)}
-    - **Jumlah Pax :** { st.session_state.pax }
-    - **Total Minimum DP :** Rp {st.session_state.total_harga:,}
-    """
-
-    st.markdown(reservation_details)
-
+    st.session_state.details
     total = f"{st.session_state.total_harga:,}"
 
     handle_payment_method_selection(total)
 
    
 def result():
-    st.title("Detail Reservasi")
+    # Display the success message from the session state
+    if "greeting" in st.session_state:
+        st.success(st.session_state.greeting)
 
-    reservation_details = f"""
-    - **Nama Pemesan :** {st.session_state.reservation_details['name']}
-    - **Nomor WhatsApp :** {st.session_state.reservation_details['phone']}
-    - **Tanggal Reservasi :** {st.session_state.reservation_details['date']}
-    - **Waktu Reservasi :** {st.session_state.reservation_details['time']}
-    - **Meja yang Dipilih:** {', '.join(st.session_state.tables_selected)}
-    - **Jumlah Pax :** { st.session_state.pax }
-    """
-    st.markdown(reservation_details)
+    st.title("Detail Reservasi")
+    st.session_state.details
+
+    if "note" in st.session_state:
+        f"- **Note :** {st.session_state.note}"
+        
+        
+    
    
 
 if 'page' not in st.session_state:
