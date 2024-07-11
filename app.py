@@ -1,7 +1,6 @@
 import streamlit as st
 from PIL import Image
-from datetime import datetime, timedelta
-
+from datetime import datetime
 
 
 def validate_time(time):
@@ -123,6 +122,7 @@ def tables():
                 st.experimental_rerun()
 
     tables_selected = []
+
     for i in range(jumlah_meja):
         if st.session_state[f"meja_{i+1}_clicked"]:
             tables_selected.append(f"Meja {i + 1}")
@@ -157,20 +157,28 @@ def check_cash_payments(dp, amount):
 
 
 def handle_payment_method_selection(amount):
-
         comma_amount = amount.replace(",", "")
         total_amount = int(comma_amount)
         payment_methods = ["Cash", "E-Wallet", "Transfer Bank"]
+        transfer_methods = ["BCA","SEA BANK"]
         payment_method = st.selectbox("Pilih Metode Pembayaran", options=payment_methods)
 
         if payment_method == "Transfer Bank":
-            st.info(f"Silahkan transfer ke BCA 3410781972487 sebesar Rp {amount}")
+
+            transfer_method =st.selectbox("Pilih Bank", options=transfer_methods)
+
+            if transfer_method == "BCA":
+                st.info(f"Silahkan transfer ke BCA 4561034901 DAVA MOHAMMAD RIZKY sejumlah Rp {amount}")
+            
+            elif transfer_method =="SEA BANK":
+                st.info(f"Silahkan transfer ke SEA BANK 901255803955 FEBRYAND NUR HIDAYAT sejumlah Rp {amount}")
+
             uploaded_file = st.file_uploader("Upload bukti", type=['png','jpg'])
 
             if uploaded_file is not None:
                 st.image(uploaded_file)
 
-            if st.button("Submit"):
+            if st.button("Konfirmasi"):
                 if uploaded_file is not None:
                     img = Image.open(uploaded_file)
                     img.save(f"uploaded-file/{uploaded_file.name}")
@@ -187,10 +195,9 @@ def handle_payment_method_selection(amount):
         
         elif payment_method == "Cash":
             dp = st.number_input("Input DP", min_value=0.0, step=100.0, format="%.0f")
-            note = st.text_area("Tulis Catatan (opsional)", placeholder="dava asu...")
-
+            note = st.text_area("Tulis Catatan (opsional)", placeholder="catatan anda...")
+            
             st.session_state.note = f"{note}"
-
 
             if st.button("Konfirmasi Pembayaran"):
                 if (check_cash_payments(dp,total_amount)):
@@ -237,6 +244,7 @@ def payment():
 
    
 def result():
+
     # Display the success message from the session state
     if "greeting" in st.session_state:
         st.success(st.session_state.greeting)
@@ -244,9 +252,28 @@ def result():
     st.title("Detail Reservasi")
     st.session_state.details
 
-    if "note" in st.session_state:
-        f"- **Note :** {st.session_state.note}"
+    #cek apabila ada catatan
+    if st.session_state.note:
+        st.write(f"Note : {st.session_state.note}")
+        details = st.session_state.details + f"\n- **Note :** {st.session_state.note}" #menambahkan catatan ke download detail
         
+    else:
+        st.write("Note: Tidak ada catatan yang diberikan.")
+        details = st.session_state.details
+
+    col1, col2 = st.columns(2)
+
+    col1.download_button(
+        label="Download Detail Reservasi",
+        data= details,
+        file_name="reservation_details.txt",
+        mime="text/plain"
+    )
+
+    if col2.button("Buat Pesanan Lain"):
+
+        st.session_state.page = 'main'
+        st.experimental_rerun()
         
     
    
