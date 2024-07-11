@@ -99,8 +99,8 @@ def get_button_style(clicked):
 
 
 def tables():
-    jumlah_meja = 9
-    jumlah_kolom = 3
+    jumlah_meja = 20
+    jumlah_kolom = 5
     cols = st.columns(jumlah_kolom)
 
     st.write("Pilih Meja")
