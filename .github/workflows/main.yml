@@ -1,0 +1,21 @@
+name: Auto Commit
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'   # run every 10  minutes
+  push:
+    branches:
+      - codespace-streamlit  # replace with your specific branch name
+  pull_request:
+    branches:
+      - codespace-streamlit  # replace with your specific branch name
+
+jobs:
+  auto-commit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+      - name: Run auto commit script
+        run: |
+          python auto_commit.py
