@@ -263,15 +263,15 @@ def result():
 
     col1, col2 = st.columns(2)
 
-    col1.download_button(
+    if col1.download_button(
         label="Download Detail Reservasi",
         data= details,
         file_name="reservation_details.txt",
         mime="text/plain"
-    )
+    ):
+        st.success("Download Berhasil")
 
     if col2.button("Buat Pesanan Lain"):
-
         st.session_state.page = 'main'
         st.experimental_rerun()
         
