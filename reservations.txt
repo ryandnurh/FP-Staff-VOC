@@ -1,0 +1,26 @@
+
+    Reservasi Details:
+
+    Nama Pemesan: Febryand Nur Hidayat
+    Nomor WhatsApp: 087705571605
+    Tanggal Reservasi: 2024-07-11
+    Waktu Reservasi: 14:50:00
+    Meja yang Dipilih: Meja 1, Meja 9, Meja 11
+    Total Meja yang Dipilih: 3
+    Jumlah Pax: 8
+    Total Minimum DP: Rp 75,000
+    
+
+
+    Reservasi Details:
+
+    Nama Pemesan: Febryand Nur Hidayat
+    Nomor WhatsApp: 087705571605
+    Tanggal Reservasi: 2024-07-11
+    Waktu Reservasi: 14:50:00
+    Meja yang Dipilih: Meja 1, Meja 9, Meja 11
+    Total Meja yang Dipilih: 3
+    Jumlah Pax: 8
+    Total Minimum DP: Rp 75,000
+    
+
