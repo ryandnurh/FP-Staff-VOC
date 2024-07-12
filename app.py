@@ -178,10 +178,13 @@ def handle_payment_method_selection(amount):
             if uploaded_file is not None:
                 st.image(uploaded_file)
 
+            note = st.text_area("Tulis Catatan (opsional)", placeholder="catatan anda...")
+
             if st.button("Konfirmasi"):
                 if uploaded_file is not None:
                     img = Image.open(uploaded_file)
                     img.save(f"uploaded-file/{uploaded_file.name}")
+                    st.session_state.note = f"{note}"
 
                     st.session_state.greeting = f"Berhasil mengupload ({uploaded_file.name}). Terimakasih telah memesan, Berikut Detail Pemesanan anda."
                     st.session_state.page = 'result'
